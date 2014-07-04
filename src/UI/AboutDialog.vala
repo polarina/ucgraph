@@ -13,7 +13,8 @@ namespace uCgraph.UI
 		construct
 		{
 			const string[] authors = {
-				"Gabríel Arthúr Pétursson <gabriel@system.is>"
+				"Gabríel Arthúr Pétursson <gabriel@system.is>",
+				null
 			};
 
 			this.authors = authors;
