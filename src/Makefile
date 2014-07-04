@@ -8,4 +8,5 @@ all:
 		-o ucgraph \
 		main.vala \
 		Application.vala \
-		Serial.vala
+		Serial.vala \
+		UI/AboutDialog.vala
