@@ -9,4 +9,5 @@ all:
 		main.vala \
 		Application.vala \
 		Serial.vala \
-		UI/AboutDialog.vala
+		UI/AboutDialog.vala \
+		UI/Commands.vala
