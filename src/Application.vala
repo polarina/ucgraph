@@ -47,6 +47,7 @@ namespace uCgraph
 			box.add (paned);
 			box.add (statusbar);
 
+			window.set_default_size (640, 480);
 			window.set_titlebar (header_bar);
 			window.add (box);
 
