@@ -10,27 +10,55 @@
 #define BAUD 9600
 #include <util/setbaud.h>
 
-volatile uint8_t tmp;
+#include "s11n.h"
+
+struct uc_s11n s11n;
+struct uc_des11n des11n;
+
+struct uc_client_message client_msg;
+struct uc_server_message server_msg;
 
 ISR (USART_RX_vect)
 {
-	tmp = UDR0;
-}
+	bool complete = uc_des11n_step (&des11n, UDR0);
 
-uint8_t chr = 0x00;
+	if (complete)
+	{
+		switch (client_msg.type)
+		{
+			case UC_CLIENT_PING:
+				server_msg.type = UC_SERVER_PONG;
+				server_msg.pong.payload = client_msg.ping.payload;
+
+				/* enable data register empty interrupt */
+				UCSR0B |= _BV (UDRIE0);
+				break;
+		}
+
+		des11n = uc_des11n_init (&client_msg);
+	}
+}
 
 ISR (USART_UDRE_vect)
 {
-	UDR0 = chr++;
+	uint8_t byte;
+	bool complete = uc_s11n_step (&s11n, &byte);
+	UDR0 = byte;
 
-	PORTB ^= 0x20;
+	if (complete)
+	{
+		s11n = uc_s11n_init (&server_msg);
 
-	/* disable data register empty interrupt */
-	//UCSR0B &= ~_BV (UDRIE0);
+		/* disable data register empty interrupt */
+		UCSR0B &= ~_BV (UDRIE0);
+	}
 }
 
 int main ()
 {
+	des11n = uc_des11n_init (&client_msg);
+	s11n = uc_s11n_init (&server_msg);
+
 	PORTB = 0x01;
 	DDRB = 0x20;
 	DDRD = 0x02;
@@ -54,12 +82,7 @@ int main ()
 	sei ();
 
 	while (1)
-	{
-		//_delay_ms (200);
-
-		/* enable data register empty interrupt */
-		//UCSR0B |= _BV (UDRIE0);
-	}
+		;
 
 	return 0;
 }
