@@ -4,7 +4,12 @@ namespace uCgraph.Message
 	{
 		public uint32 payload;
 
-		public ServerPong (DataInputStream stream)
+		public ServerPong (uint32 payload)
+		{
+			this.payload = payload;
+		}
+
+		public ServerPong.deserialize (DataInputStream stream)
 			throws IOError
 		{
 			this.payload = stream.read_uint32 ();

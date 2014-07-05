@@ -10,7 +10,7 @@ namespace uCgraph.Message
 			switch (type)
 			{
 				case 0x00:
-					return new ClientPing (stream);
+					return new ClientPing.deserialize (stream);
 				default:
 					assert_not_reached ();
 			}

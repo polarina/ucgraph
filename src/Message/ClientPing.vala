@@ -4,7 +4,12 @@ namespace uCgraph.Message
 	{
 		public uint32 payload;
 
-		public ClientPing (DataInputStream stream)
+		public ClientPing (uint32 payload)
+		{
+			this.payload = payload;
+		}
+
+		public ClientPing.deserialize (DataInputStream stream)
 			throws IOError
 		{
 			this.payload = stream.read_uint32 ();
