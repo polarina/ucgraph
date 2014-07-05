@@ -8,5 +8,7 @@ avr: main.hex
 main.hex: main
 	avr-objcopy -O ihex -R .eeprom main main.hex
 
-main: main.c
-	avr-gcc -std=c99 -O2 -DF_CPU=16000000UL -mmcu=atmega328p -o main main.c -Wall -Wextra
+main: main.c message.h s11n.c s11n.h
+	avr-gcc -std=c99 -O2 -DF_CPU=16000000UL -mmcu=atmega328p -o main -Wall -Wextra \
+		main.c \
+		s11n.c
