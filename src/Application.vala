@@ -44,13 +44,11 @@ namespace uCgraph
 
 			statusbar.add (new Gtk.Label ("Baud rate: 9600"));
 
-			box.add (header_bar);
 			box.add (paned);
 			box.add (statusbar);
 
+			window.set_titlebar (header_bar);
 			window.add (box);
-
-			window.title = "µCgraph";
 
 			window.show_all ();
 		}
