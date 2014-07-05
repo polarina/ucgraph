@@ -23,7 +23,7 @@ namespace uCgraph
 				this.stream.output_stream);
 
 			this.data_output_stream.byte_order =
-				DataStreamByteOrder.BIG_ENDIAN;
+				DataStreamByteOrder.LITTLE_ENDIAN;
 			this.data_output_stream.set_close_base_stream (false);
 		}
 
