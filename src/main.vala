@@ -21,5 +21,11 @@ int main (string[] args)
 
 	protocol.begin ();
 
+	Timeout.add (1000, () => {
+		protocol.send (new uCgraph.Message.ClientPing (1337));
+
+		return true;
+	});
+
 	return app.run (args);
 }

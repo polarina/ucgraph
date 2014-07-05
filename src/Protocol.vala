@@ -3,6 +3,7 @@ namespace uCgraph
 	class Protocol : Object
 	{
 		private Cancellable cancellable;
+		private DataOutputStream data_output_stream;
 
 		public IOStream stream { get; construct set; }
 
@@ -15,16 +16,31 @@ namespace uCgraph
 			);
 		}
 
-		public void begin ()
+		construct
 		{
 			this.cancellable = new Cancellable ();
+			this.data_output_stream = new DataOutputStream (
+				this.stream.output_stream);
 
+			this.data_output_stream.byte_order =
+				DataStreamByteOrder.BIG_ENDIAN;
+			this.data_output_stream.set_close_base_stream (false);
+		}
+
+		public void begin ()
+		{
 			this.work.begin ();
 		}
 
 		public void end ()
 		{
 			this.cancellable.cancel ();
+		}
+
+		public void send (Message.Client message)
+			throws IOError
+		{
+			message.serialize (this.data_output_stream);
 		}
 
 		private async void work ()
