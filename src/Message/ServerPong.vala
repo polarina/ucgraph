@@ -18,6 +18,7 @@ namespace uCgraph.Message
 		public override void serialize (DataOutputStream stream)
 			throws IOError
 		{
+			stream.put_byte (0x00);
 			stream.put_uint32 (this.payload);
 		}
 	}
