@@ -8,6 +8,18 @@ namespace uCgraph
 		private UnixInputStream input;
 		private UnixOutputStream output;
 
+		public string port { get; construct set; }
+
+		public override InputStream input_stream
+		{
+			get { return this.input; }
+		}
+
+		public override OutputStream output_stream
+		{
+			get { return this.output; }
+		}
+
 		public Serial (string port) throws IOError
 			requires (port != "")
 		{
@@ -62,18 +74,6 @@ namespace uCgraph
 		~Serial ()
 		{
 			Posix.close (this.fd);
-		}
-
-		public string port { get; construct set; }
-
-		public override InputStream input_stream
-		{
-			get { return this.input; }
-		}
-
-		public override OutputStream output_stream
-		{
-			get { return this.output; }
 		}
 	}
 }
