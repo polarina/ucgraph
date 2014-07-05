@@ -2,6 +2,7 @@
 
 all:
 	valac \
+		-g \
 		--pkg gio-unix-2.0 \
 		--pkg gtk+-3.0 \
 		--pkg posix \
