@@ -1,14 +1,14 @@
-.PHONY: all avr
+.PHONY: all upload
 
-all: avr
+all: atmega328p
 
-avr: main.hex
-	avrdude -V -c arduino -p atmega328p -P /dev/ttyACM0 -b 115200 -U flash:w:main.hex
+upload: atmega328p.hex
+	avrdude -V -c arduino -p atmega328p -P /dev/ttyACM0 -b 115200 -U flash:w:atmega328p.hex
 
-main.hex: main
-	avr-objcopy -O ihex -R .eeprom main main.hex
+atmega328p.hex: atmega328p
+	avr-objcopy -O ihex -R .eeprom atmega328p atmega328p.hex
 
-main: main.c message.h s11n.c s11n.h
-	avr-gcc -std=c99 -O2 -DF_CPU=16000000UL -mmcu=atmega328p -o main -Wall -Wextra \
-		main.c \
-		s11n.c
+atmega328p: atmega328p.c protocol.c protocol.h
+	avr-gcc -std=c99 -Os -flto -DF_CPU=16000000UL -mmcu=atmega328p -o atmega328p -Wall -Wextra \
+		atmega328p.c \
+		protocol.c

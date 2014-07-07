@@ -14,23 +14,16 @@ int main (string[] args)
 
 	uCgraph.Protocol protocol = new uCgraph.Protocol (serial);
 
-	protocol.message_received.connect ((object, data) => {
-		stdout.printf ("% 4d: ", data.length);
-
-		foreach (uint8 chr in data)
-		{
-			stdout.printf ("%02x ", chr);
-		}
-
-		stdout.printf ("\n");
-		stdout.flush ();
+	protocol.on_pong.connect ((object, payload) => {
+		stdout.printf ("pong (%u)\n", payload);
 	});
 
 	protocol.begin ();
 
-	Timeout.add (1000, () => {
-		stdout.printf ("\n");
-		protocol.send (new uCgraph.Message.ClientPing (0x323a));
+	int i = 0;
+
+	Timeout.add (2000, () => {
+		protocol.do_ping (i++);
 
 		return true;
 	});

@@ -12,9 +12,5 @@ all:
 		Device.vala \
 		Protocol.vala \
 		Serial.vala \
-		Message/Client.vala \
-		Message/ClientPing.vala \
-		Message/Server.vala \
-		Message/ServerPong.vala \
 		UI/AboutDialog.vala \
 		UI/Commands.vala

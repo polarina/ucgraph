@@ -1,13 +1,16 @@
 namespace uCgraph
 {
+	private enum Type
+	{
+		PONG = 0x00,
+		NONE = 0xff,
+	}
+
 	class Protocol : Object
 	{
-		private Cancellable cancellable;
-		private DataOutputStream data_output_stream;
-
 		public IOStream stream { get; construct set; }
 
-		public signal void message_received (uint8[] message);
+		public signal void on_pong (uint32 payload);
 
 		public Protocol (IOStream stream)
 		{
@@ -19,17 +22,18 @@ namespace uCgraph
 		construct
 		{
 			this.cancellable = new Cancellable ();
-			this.data_output_stream = new DataOutputStream (
-				this.stream.output_stream);
 
-			this.data_output_stream.byte_order =
-				DataStreamByteOrder.LITTLE_ENDIAN;
-			this.data_output_stream.set_close_base_stream (false);
+			this.recv_buffer = new uint8[4096];
+			this.send_buffer = new Queue<Bytes> ();
 		}
 
 		public void begin ()
 		{
-			this.work.begin ();
+			this.recv_work.begin ();
+			this.sending = true;
+			this.send_work.begin ((obj, res) => {
+				this.sending = false;
+			});
 		}
 
 		public void end ()
@@ -37,31 +41,113 @@ namespace uCgraph
 			this.cancellable.cancel ();
 		}
 
-		public void send (Message.Client message)
+		public void do_ping (uint32 payload)
 			throws IOError
 		{
-			message.serialize (this.data_output_stream);
+			this.send_buffer.push_tail (new Bytes ({
+				0x00,
+				(uint8) payload >> 24,
+				(uint8) payload >> 16,
+				(uint8) payload >> 8,
+				(uint8) payload
+			}));
+
+			if ( ! this.sending)
+			{
+				this.sending = true;
+				this.send_work.begin ((obj, res) => {
+					this.sending = false;
+				});
+			}
 		}
 
-		private async void work ()
+		private void step (uint8 byte)
+		{
+			bool done = false;
+
+			switch (this.type)
+			{
+				case Type.NONE:
+					switch (byte)
+					{
+						case Type.PONG:
+							this.type = Type.PONG;
+							break;
+						default:
+							assert_not_reached ();
+					}
+					break;
+				case Type.PONG:
+					done = this.step_pong (byte);
+					break;
+			}
+
+			if (done)
+			{
+				this.type = Type.NONE;
+				this.processed = 0;
+			}
+		}
+
+		private bool step_pong (uint8 byte)
+		{
+			this.dummy <<= 8;
+			this.dummy |= byte;
+
+			if (++this.processed >= sizeof (uint32))
+			{
+				this.on_pong (this.dummy);
+
+				return true;
+			}
+
+			return false;
+		}
+
+		private async void recv_work ()
 			throws IOError
 		{
-			uint8[] buffer = new uint8[4096];
-
 			while (true)
 			{
-				ssize_t read;
-
-				read = yield this.stream.input_stream.read_async (
-					buffer,
+				ssize_t read = yield this.stream.input_stream.read_async (
+					this.recv_buffer,
 					Priority.DEFAULT,
 					this.cancellable);
 
 				if (read == 0)
 					return;
 
-				this.message_received (buffer[0:read]);
+				foreach (uint8 byte in this.recv_buffer[0:read])
+				{
+					this.step (byte);
+				}
 			}
 		}
+
+		private async void send_work ()
+			throws IOError
+		{
+			Bytes data;
+
+			while ((data = this.send_buffer.pop_head ()) != null)
+			{
+				ssize_t sent = yield this.stream.output_stream.write_async (
+					data.get_data (),
+					Priority.DEFAULT,
+					this.cancellable);
+
+				assert (data.length == sent);
+			}
+		}
+
+		private Cancellable cancellable;
+		private uint8[] recv_buffer;
+		private Queue<Bytes> send_buffer;
+		private bool sending;
+
+		private Type type = Type.NONE;
+		private size_t processed;
+
+		private uint32 dummy;
 	}
 }
