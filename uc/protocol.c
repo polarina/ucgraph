@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include "protocol.h"
 
@@ -9,12 +10,13 @@
 
 enum uc_protocol_type
 {
+	PROTOCOL_TYPE_IDENT = 0x01,
 	PROTOCOL_TYPE_PING = 0x00,
 
 	PROTOCOL_TYPE_NONE = 0xff,
 };
 
-static uint8_t buf[16];
+static uint8_t buf[64];
 static uint8_t begin;
 static uint8_t end;
 
@@ -56,7 +58,15 @@ uc_protocol_step (uint8_t byte)
 	switch (type)
 	{
 		case PROTOCOL_TYPE_NONE:
-			type = byte;
+			switch (byte)
+			{
+				case PROTOCOL_TYPE_IDENT:
+					uc_protocol_on_ident ();
+					break;
+				default:
+					type = byte;
+					break;
+			}
 			break;
 		case PROTOCOL_TYPE_PING:
 			done = uc_protocol_step_ping (byte);
@@ -85,6 +95,19 @@ uc_protocol_tx_next ()
 	}
 
 	return byte;
+}
+
+void
+uc_protocol_do_ident (const char *device)
+{
+	WRITE (0x01);
+
+	for (size_t i = 0; device[i] != 0; ++i)
+	{
+		WRITE (device[i]);
+	}
+
+	WRITE (0x00);
 }
 
 void

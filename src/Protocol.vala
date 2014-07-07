@@ -2,6 +2,7 @@ namespace uCgraph
 {
 	private enum Type
 	{
+		IDENT = 0x01,
 		PONG = 0x00,
 		NONE = 0xff,
 	}
@@ -10,6 +11,7 @@ namespace uCgraph
 	{
 		public IOStream stream { get; construct set; }
 
+		public signal void on_ident (string device);
 		public signal void on_pong (uint32 payload);
 
 		public Protocol (IOStream stream)
@@ -41,6 +43,21 @@ namespace uCgraph
 			this.cancellable.cancel ();
 		}
 
+		public void do_ident ()
+		{
+			this.send_buffer.push_tail (new Bytes ({
+				0x01
+			}));
+
+			if ( ! this.sending)
+			{
+				this.sending = true;
+				this.send_work.begin ((obj, res) => {
+					this.sending = false;
+				});
+			}
+		}
+
 		public void do_ping (uint32 payload)
 			throws IOError
 		{
@@ -70,12 +87,20 @@ namespace uCgraph
 				case Type.NONE:
 					switch (byte)
 					{
+						case Type.IDENT:
+							this.string_dummy = "";
+							this.type = Type.IDENT;
+							break;
 						case Type.PONG:
+							this.dummy = 0;
 							this.type = Type.PONG;
 							break;
 						default:
 							assert_not_reached ();
 					}
+					break;
+				case Type.IDENT:
+					done = this.step_ident (byte);
 					break;
 				case Type.PONG:
 					done = this.step_pong (byte);
@@ -87,6 +112,24 @@ namespace uCgraph
 				this.type = Type.NONE;
 				this.processed = 0;
 			}
+		}
+
+		private bool step_ident (uint8 byte)
+		{
+			char chr = (char) byte;
+
+			if (chr == 0x00)
+			{
+				this.on_ident (this.string_dummy);
+
+				return true;
+			}
+			else
+			{
+				this.string_dummy = @"$(this.string_dummy)$chr";
+			}
+
+			return false;
 		}
 
 		private bool step_pong (uint8 byte)
@@ -149,5 +192,6 @@ namespace uCgraph
 		private size_t processed;
 
 		private uint32 dummy;
+		private string string_dummy;
 	}
 }

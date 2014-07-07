@@ -14,6 +14,10 @@ int main (string[] args)
 
 	uCgraph.Protocol protocol = new uCgraph.Protocol (serial);
 
+	protocol.on_ident.connect ((object, device) => {
+		stdout.printf ("ident (%s)\n", device);
+	});
+
 	protocol.on_pong.connect ((object, payload) => {
 		stdout.printf ("pong (%u)\n", payload);
 	});
@@ -23,6 +27,11 @@ int main (string[] args)
 	int i = 0;
 
 	Timeout.add (2000, () => {
+		if (i == 0)
+		{
+			protocol.do_ident ();
+		}
+
 		protocol.do_ping (i++);
 
 		return true;

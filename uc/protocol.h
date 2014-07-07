@@ -13,7 +13,13 @@ void
 uc_protocol_step (uint8_t byte);
 
 void
+uc_protocol_do_ident (const char *device);
+
+void
 uc_protocol_do_pong (uint32_t payload);
+
+void
+uc_protocol_on_ident ();
 
 void
 uc_protocol_on_ping (uint32_t payload);

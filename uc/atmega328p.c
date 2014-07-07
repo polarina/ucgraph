@@ -7,6 +7,12 @@
 #include "protocol.h"
 
 void
+uc_protocol_on_ident ()
+{
+	uc_protocol_do_ident ("Atmega328p");
+}
+
+void
 uc_protocol_on_ping (uint32_t payload)
 {
 	uc_protocol_do_pong (payload);
