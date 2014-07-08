@@ -9,6 +9,7 @@ all:
 		-o ucgraph \
 		main.vala \
 		Application.vala \
+		Deserialization.vala \
 		Device.vala \
 		Protocol.vala \
 		Serial.vala \

@@ -24,8 +24,10 @@ namespace uCgraph
 		construct
 		{
 			this.cancellable = new Cancellable ();
+			this.input = new Deserialization (
+				this.stream.input_stream,
+				this.cancellable);
 
-			this.recv_buffer = new uint8[4096];
 			this.send_buffer = new Queue<Bytes> ();
 		}
 
@@ -78,73 +80,24 @@ namespace uCgraph
 			}
 		}
 
-		private void step (uint8 byte)
+		private async void step ()
+			throws IOError
 		{
-			bool done = false;
+			uint8 type = yield this.input.read_uint8 ();
 
-			switch (this.type)
+			switch (type)
 			{
-				case Type.NONE:
-					switch (byte)
-					{
-						case Type.IDENT:
-							this.string_dummy = "";
-							this.type = Type.IDENT;
-							break;
-						case Type.PONG:
-							this.dummy = 0;
-							this.type = Type.PONG;
-							break;
-						default:
-							assert_not_reached ();
-					}
-					break;
 				case Type.IDENT:
-					done = this.step_ident (byte);
+					string device = yield this.input.read_string ();
+					this.on_ident (device);
 					break;
 				case Type.PONG:
-					done = this.step_pong (byte);
+					uint32 payload = yield this.input.read_uint32 ();
+					this.on_pong (payload);
 					break;
+				default:
+					assert_not_reached ();
 			}
-
-			if (done)
-			{
-				this.type = Type.NONE;
-				this.processed = 0;
-			}
-		}
-
-		private bool step_ident (uint8 byte)
-		{
-			char chr = (char) byte;
-
-			if (chr == 0x00)
-			{
-				this.on_ident (this.string_dummy);
-
-				return true;
-			}
-			else
-			{
-				this.string_dummy = @"$(this.string_dummy)$chr";
-			}
-
-			return false;
-		}
-
-		private bool step_pong (uint8 byte)
-		{
-			this.dummy <<= 8;
-			this.dummy |= byte;
-
-			if (++this.processed >= sizeof (uint32))
-			{
-				this.on_pong (this.dummy);
-
-				return true;
-			}
-
-			return false;
 		}
 
 		private async void recv_work ()
@@ -152,18 +105,7 @@ namespace uCgraph
 		{
 			while (true)
 			{
-				ssize_t read = yield this.stream.input_stream.read_async (
-					this.recv_buffer,
-					Priority.DEFAULT,
-					this.cancellable);
-
-				if (read == 0)
-					return;
-
-				foreach (uint8 byte in this.recv_buffer[0:read])
-				{
-					this.step (byte);
-				}
+				yield this.step ();
 			}
 		}
 
@@ -184,14 +126,8 @@ namespace uCgraph
 		}
 
 		private Cancellable cancellable;
-		private uint8[] recv_buffer;
+		private Deserialization input;
 		private Queue<Bytes> send_buffer;
 		private bool sending;
-
-		private Type type = Type.NONE;
-		private size_t processed;
-
-		private uint32 dummy;
-		private string string_dummy;
 	}
 }
