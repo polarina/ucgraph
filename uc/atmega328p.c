@@ -2,6 +2,7 @@
 
 #include <avr/interrupt.h>
 #include <avr/io.h>
+#include <stddef.h>
 #include <util/setbaud.h>
 
 #include "protocol.h"
@@ -9,7 +10,53 @@
 void
 uc_protocol_on_ident ()
 {
-	uc_protocol_do_ident ("Atmega328p");
+	uc_protocol_do_ident (
+		"Atmega328p", 3,
+		"Port B",
+			NULL,
+			NULL,
+			"PB5",
+				PIN_DIGITAL_INPUT | PIN_DIGITAL_OUTPUT,
+			"PB4",
+				PIN_DIGITAL_INPUT | PIN_DIGITAL_OUTPUT,
+			"PB3",
+				PIN_DIGITAL_INPUT | PIN_DIGITAL_OUTPUT | PIN_PWM,
+			"PB2",
+				PIN_DIGITAL_INPUT | PIN_DIGITAL_OUTPUT | PIN_PWM,
+			"PB1",
+				PIN_DIGITAL_INPUT | PIN_DIGITAL_OUTPUT | PIN_PWM,
+			"PB0",
+				PIN_DIGITAL_INPUT | PIN_DIGITAL_OUTPUT,
+		"Port C",
+			NULL,
+			NULL,
+			"PC5",
+				PIN_ANALOG_INPUT | PIN_DIGITAL_INPUT | PIN_DIGITAL_OUTPUT,
+			"PC4",
+				PIN_ANALOG_INPUT | PIN_DIGITAL_INPUT | PIN_DIGITAL_OUTPUT,
+			"PC3",
+				PIN_ANALOG_INPUT | PIN_DIGITAL_INPUT | PIN_DIGITAL_OUTPUT,
+			"PC2",
+				PIN_ANALOG_INPUT | PIN_DIGITAL_INPUT | PIN_DIGITAL_OUTPUT,
+			"PC1",
+				PIN_ANALOG_INPUT | PIN_DIGITAL_INPUT | PIN_DIGITAL_OUTPUT,
+			"PC0",
+				PIN_ANALOG_INPUT | PIN_DIGITAL_INPUT | PIN_DIGITAL_OUTPUT,
+		"Port D",
+			"PC7",
+				PIN_DIGITAL_INPUT | PIN_DIGITAL_OUTPUT,
+			"PC6",
+				PIN_DIGITAL_INPUT | PIN_DIGITAL_OUTPUT | PIN_PWM,
+			"PC5",
+				PIN_DIGITAL_INPUT | PIN_DIGITAL_OUTPUT | PIN_PWM,
+			"PC4",
+				PIN_DIGITAL_INPUT | PIN_DIGITAL_OUTPUT,
+			"PC3",
+				PIN_DIGITAL_INPUT | PIN_DIGITAL_OUTPUT,
+			"PC2",
+				PIN_DIGITAL_INPUT | PIN_DIGITAL_OUTPUT | PIN_PWM,
+			NULL,
+			NULL);
 }
 
 void

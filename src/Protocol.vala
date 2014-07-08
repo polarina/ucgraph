@@ -89,6 +89,21 @@ namespace uCgraph
 			{
 				case Type.IDENT:
 					string device = yield this.input.read_string ();
+					uint8 ports = yield this.input.read_uint8 ();
+
+					for (size_t i = 0; i < ports; ++i)
+					{
+						string port_name = yield this.input.read_string ();
+
+						for (size_t pin = 0; pin < 8; ++pin)
+						{
+							string pin_name = yield this.input.read_string ();
+
+							if (pin_name != "")
+								yield this.input.read_uint8 ();
+						}
+					}
+
 					this.on_ident (device);
 					break;
 				case Type.PONG:

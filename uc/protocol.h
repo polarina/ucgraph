@@ -3,6 +3,12 @@
 
 #include <stdint.h>
 
+#define PIN_ANALOG_INPUT 0x01
+#define PIN_ANALOG_OUTPUT 0x02
+#define PIN_DIGITAL_INPUT 0x04
+#define PIN_DIGITAL_OUTPUT 0x08
+#define PIN_PWM 0x10
+
 void
 uc_protocol_init ();
 
@@ -13,7 +19,7 @@ void
 uc_protocol_step (uint8_t byte);
 
 void
-uc_protocol_do_ident (const char *device);
+uc_protocol_do_ident (const char *device, uint8_t ports, ...);
 
 void
 uc_protocol_do_pong (uint32_t payload);

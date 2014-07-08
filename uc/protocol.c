@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -8,6 +9,14 @@
 		end %= sizeof (buf); \
 	} while (0)
 
+#define WRITE_STRING(x) do { \
+		const char *str = (x); \
+		for (size_t i = 0; str[i] != 0; ++i) { \
+			WRITE (str[i]); \
+		} \
+		WRITE (0x00); \
+	} while (0)
+
 enum uc_protocol_type
 {
 	PROTOCOL_TYPE_IDENT = 0x01,
@@ -16,7 +25,7 @@ enum uc_protocol_type
 	PROTOCOL_TYPE_NONE = 0xff,
 };
 
-static uint8_t buf[64];
+static uint8_t buf[256];
 static uint8_t begin;
 static uint8_t end;
 
@@ -98,16 +107,36 @@ uc_protocol_tx_next ()
 }
 
 void
-uc_protocol_do_ident (const char *device)
+uc_protocol_do_ident (const char *device, uint8_t ports, ...)
 {
 	WRITE (0x01);
+	WRITE_STRING (device);
+	WRITE (ports);
 
-	for (size_t i = 0; device[i] != 0; ++i)
+	va_list ap;
+	va_start (ap, ports);
+
+	for (uint8_t i = 0; i < ports; ++i)
 	{
-		WRITE (device[i]);
+		WRITE_STRING (va_arg (ap, const char *));
+
+		for (uint8_t j = 0; j < 8; ++j)
+		{
+			const char *pin_name = va_arg (ap, const char *);
+
+			if (pin_name)
+			{
+				WRITE_STRING (pin_name);
+				WRITE (va_arg (ap, int));
+			}
+			else
+			{
+				WRITE (0x00);
+			}
+		}
 	}
 
-	WRITE (0x00);
+	va_end (ap);
 }
 
 void
