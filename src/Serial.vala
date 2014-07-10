@@ -50,12 +50,12 @@ namespace uCgraph
 			options.c_iflag &= ~(IXON | IXOFF | IXANY);
 			options.c_oflag &= ~OPOST;
 
-			status = cfsetispeed (ref options, B9600);
+			status = cfsetispeed (ref options, B38400);
 
 			if (status != 0)
 				throw new IOError.FAILED ("cfsetispeed");
 
-			status = cfsetospeed (ref options, B9600);
+			status = cfsetospeed (ref options, B38400);
 
 			if (status != 0)
 				throw new IOError.FAILED ("cfsetospeed");

@@ -42,7 +42,7 @@ namespace uCgraph
 				new Gtk.Label ("Graphs and Stuff"),
 				new Gtk.Label ("Atmega328p"));
 
-			statusbar.add (new Gtk.Label ("Baud rate: 9600"));
+			statusbar.add (new Gtk.Label ("Baud rate: 38400"));
 
 			box.add (paned);
 			box.add (statusbar);
