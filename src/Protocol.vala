@@ -13,7 +13,7 @@ namespace uCgraph
 	{
 		public IOStream stream { get; construct set; }
 
-		public signal void on_ident (string device);
+		public signal void on_ident (Device device);
 		public signal void on_pong (uint32 payload);
 		public signal void on_port_digital_state (uint8 port, uint8 state);
 
@@ -124,22 +124,30 @@ namespace uCgraph
 			{
 				case Type.IDENT:
 					string device = yield this.input.read_string ();
-					uint8 ports = yield this.input.read_uint8 ();
+					Gee.List<Port> ports = new Gee.ArrayList<Port> ();
+					uint8 num_ports = yield this.input.read_uint8 ();
 
-					for (size_t i = 0; i < ports; ++i)
+					for (size_t i = 0; i < num_ports; ++i)
 					{
 						string port_name = yield this.input.read_string ();
+						Gee.List<Pin> pins = new Gee.ArrayList<Pin> ();
 
 						for (size_t pin = 0; pin < 8; ++pin)
 						{
 							string pin_name = yield this.input.read_string ();
 
 							if (pin_name != "")
-								yield this.input.read_uint8 ();
+							{
+								uint8 capabilities = yield this.input.read_uint8 ();
+
+								pins.add (new Pin (pin_name, (uint8) pin, capabilities));
+							}
 						}
+
+						ports.add (new Port (port_name, pins));
 					}
 
-					this.on_ident (device);
+					this.on_ident (new Device (device, ports));
 					break;
 				case Type.PONG:
 					uint32 payload = yield this.input.read_uint32 ();

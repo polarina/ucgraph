@@ -16,7 +16,7 @@ int main (string[] args)
 	uCgraph.Protocol protocol = new uCgraph.Protocol (serial);
 
 	protocol.on_ident.connect ((object, device) => {
-		stdout.printf ("ident (%s)\n", device);
+		stdout.printf ("ident (device: %s)\n", device.name);
 	});
 
 	protocol.on_pong.connect ((object, payload) => {
