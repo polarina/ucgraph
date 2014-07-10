@@ -165,7 +165,7 @@ namespace uCgraph
 						string port_name = yield this.input.read_string ();
 						Gee.List<Pin> pins = new Gee.ArrayList<Pin> ();
 
-						for (size_t pin = 0; pin < 8; ++pin)
+						for (int pin = 7; pin >= 0; --pin)
 						{
 							string pin_name = yield this.input.read_string ();
 
