@@ -25,7 +25,16 @@ void
 uc_protocol_do_pong (uint32_t payload);
 
 void
+uc_protocol_do_port_digital_state (uint8_t port, uint8_t state);
+
+void
 uc_protocol_on_ident ();
+
+void
+uc_protocol_on_monitor_port (uint8_t port);
+
+void
+uc_protocol_on_neglect_port (uint8_t port);
 
 void
 uc_protocol_on_ping (uint32_t payload);

@@ -2,10 +2,15 @@
 
 #include <avr/interrupt.h>
 #include <avr/io.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <util/setbaud.h>
 
 #include "protocol.h"
+
+static bool monitor_portb = false;
+static bool monitor_portc = false;
+static bool monitor_portd = false;
 
 void
 uc_protocol_on_ident ()
@@ -60,6 +65,44 @@ uc_protocol_on_ident ()
 }
 
 void
+uc_protocol_on_monitor_port (uint8_t port)
+{
+	switch (port)
+	{
+		case 0:
+			monitor_portb = true;
+			break;
+		case 1:
+			monitor_portc = true;
+			break;
+		case 2:
+			monitor_portd = true;
+			break;
+		default:
+			break;
+	}
+}
+
+void
+uc_protocol_on_neglect_port (uint8_t port)
+{
+	switch (port)
+	{
+		case 0:
+			monitor_portb = false;
+			break;
+		case 1:
+			monitor_portc = false;
+			break;
+		case 2:
+			monitor_portd = false;
+			break;
+		default:
+			break;
+	}
+}
+
+void
 uc_protocol_on_ping (uint32_t payload)
 {
 	uc_protocol_do_pong (payload);
@@ -101,12 +144,42 @@ main ()
 	/* serial: 8-bit characters */
 	UCSR0C = _BV (UCSZ01) | _BV (UCSZ00);
 
+	/* timer 0: 125th of a second */
+	OCR0A = F_CPU / 1024 / 125 - 1;
+
+	/* timer 0: CTC mode */
+	TCCR0A = _BV (WGM01);
+
+	/* timer 0: prescaler 1024 */
+	TCCR0B = _BV (CS02) | _BV (CS00);
+
+	/* timer 0: output compare match A interrupt enable */
+	TIMSK0 = _BV (OCIE0A);
+
 	sei ();
 
 	while (1)
 		;
 
 	return 0;
+}
+
+ISR (TIMER0_COMPA_vect)
+{
+	if (monitor_portb)
+	{
+		uc_protocol_do_port_digital_state (0, PINB);
+	}
+
+	if (monitor_portc)
+	{
+		uc_protocol_do_port_digital_state (1, PINC);
+	}
+
+	if (monitor_portd)
+	{
+		uc_protocol_do_port_digital_state (2, PIND);
+	}
 }
 
 ISR (USART_RX_vect)

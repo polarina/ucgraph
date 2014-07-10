@@ -4,6 +4,8 @@ namespace uCgraph
 	{
 		IDENT = 0x01,
 		PONG = 0x00,
+		PORT_DIGITAL_STATE = 0x02,
+
 		NONE = 0xff,
 	}
 
@@ -13,6 +15,7 @@ namespace uCgraph
 
 		public signal void on_ident (string device);
 		public signal void on_pong (uint32 payload);
+		public signal void on_port_digital_state (uint8 port, uint8 state);
 
 		public Protocol (IOStream stream)
 		{
@@ -49,6 +52,38 @@ namespace uCgraph
 		{
 			this.send_buffer.push_tail (new Bytes ({
 				0x01
+			}));
+
+			if ( ! this.sending)
+			{
+				this.sending = true;
+				this.send_work.begin ((obj, res) => {
+					this.sending = false;
+				});
+			}
+		}
+
+		public void do_monitor_port (uint8 port)
+		{
+			this.send_buffer.push_tail (new Bytes ({
+				0x02,
+				port
+			}));
+
+			if ( ! this.sending)
+			{
+				this.sending = true;
+				this.send_work.begin ((obj, res) => {
+					this.sending = false;
+				});
+			}
+		}
+
+		public void do_neglect_port (uint8 port)
+		{
+			this.send_buffer.push_tail (new Bytes ({
+				0x03,
+				port
 			}));
 
 			if ( ! this.sending)
@@ -109,6 +144,11 @@ namespace uCgraph
 				case Type.PONG:
 					uint32 payload = yield this.input.read_uint32 ();
 					this.on_pong (payload);
+					break;
+				case Type.PORT_DIGITAL_STATE:
+					uint8 port = yield this.input.read_uint8 ();
+					uint8 state = yield this.input.read_uint8 ();
+					this.on_port_digital_state (port, state);
 					break;
 				default:
 					assert_not_reached ();

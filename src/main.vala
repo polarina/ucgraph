@@ -9,6 +9,7 @@ int main (string[] args)
 	}
 	catch (IOError e)
 	{
+		stderr.printf ("IOError: %s\n", e.message);
 		return 1;
 	}
 
@@ -22,6 +23,10 @@ int main (string[] args)
 		stdout.printf ("pong (%u)\n", payload);
 	});
 
+	protocol.on_port_digital_state.connect ((object, port, state) => {
+		stdout.printf ("port-digital-state (%u, %u)\n", port, state);
+	});
+
 	protocol.begin ();
 
 	int i = 0;
@@ -30,6 +35,7 @@ int main (string[] args)
 		if (i == 0)
 		{
 			protocol.do_ident ();
+			protocol.do_monitor_port (1);
 		}
 
 		protocol.do_ping (i++);

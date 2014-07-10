@@ -20,6 +20,8 @@
 enum uc_protocol_type
 {
 	PROTOCOL_TYPE_IDENT = 0x01,
+	PROTOCOL_TYPE_MONITOR_PORT = 0x02,
+	PROTOCOL_TYPE_NEGLECT_PORT = 0x03,
 	PROTOCOL_TYPE_PING = 0x00,
 
 	PROTOCOL_TYPE_NONE = 0xff,
@@ -76,6 +78,14 @@ uc_protocol_step (uint8_t byte)
 					type = byte;
 					break;
 			}
+			break;
+		case PROTOCOL_TYPE_MONITOR_PORT:
+			uc_protocol_on_monitor_port (byte);
+			done = true;
+			break;
+		case PROTOCOL_TYPE_NEGLECT_PORT:
+			uc_protocol_on_neglect_port (byte);
+			done = true;
 			break;
 		case PROTOCOL_TYPE_PING:
 			done = uc_protocol_step_ping (byte);
@@ -147,6 +157,16 @@ uc_protocol_do_pong (uint32_t payload)
 	WRITE (payload >> 16);
 	WRITE (payload >> 8);
 	WRITE (payload);
+
+	uc_protocol_tx_enable ();
+}
+
+void
+uc_protocol_do_port_digital_state (uint8_t port, uint8_t state)
+{
+	WRITE (0x02);
+	WRITE (port);
+	WRITE (state);
 
 	uc_protocol_tx_enable ();
 }
