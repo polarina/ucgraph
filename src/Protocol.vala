@@ -100,9 +100,9 @@ namespace uCgraph
 		{
 			this.send_buffer.push_tail (new Bytes ({
 				0x00,
-				(uint8) payload >> 24,
-				(uint8) payload >> 16,
-				(uint8) payload >> 8,
+				(uint8) (payload >> 24),
+				(uint8) (payload >> 16),
+				(uint8) (payload >> 8),
 				(uint8) payload
 			}));
 
