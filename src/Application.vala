@@ -16,7 +16,7 @@ namespace uCgraph
 			Gtk.Box box = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
 			Gtk.HeaderBar header_bar = new Gtk.HeaderBar ();
 			Gtk.MenuButton menu_button = new Gtk.MenuButton ();
-			Gtk.Image image = new Gtk.Image.from_icon_name ("emblem-system", Gtk.IconSize.BUTTON);
+			Gtk.Image image = new Gtk.Image.from_icon_name ("emblem-system-symbolic", Gtk.IconSize.BUTTON);
 			Gtk.Paned paned = new Gtk.Paned (Gtk.Orientation.HORIZONTAL);
 			Gtk.Notebook notebook = new Gtk.Notebook ();
 			Gtk.Statusbar statusbar = new Gtk.Statusbar ();
