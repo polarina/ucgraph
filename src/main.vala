@@ -17,6 +17,7 @@ int main (string[] args)
 
 	protocol.on_ident.connect ((object, device) => {
 		stdout.printf ("ident (device: %s)\n", device.name);
+		app.with_device (device);
 	});
 
 	protocol.on_pong.connect ((object, payload) => {
@@ -24,7 +25,7 @@ int main (string[] args)
 	});
 
 	protocol.on_port_digital_state.connect ((object, port, state) => {
-		stdout.printf ("port-digital-state (%u, %u)\n", port, state);
+		// stdout.printf ("port-digital-state (%u, %u)\n", port, state);
 	});
 
 	protocol.begin ();

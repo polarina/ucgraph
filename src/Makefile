@@ -17,4 +17,6 @@ all:
 		Protocol.vala \
 		Serial.vala \
 		UI/AboutDialog.vala \
-		UI/Commands.vala
+		UI/Commands.vala \
+		UI/PortsStore.vala \
+		UI/PortsView.vala
