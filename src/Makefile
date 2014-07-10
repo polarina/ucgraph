@@ -18,5 +18,6 @@ all:
 		Serial.vala \
 		UI/AboutDialog.vala \
 		UI/Commands.vala \
+		UI/PinControls.vala \
 		UI/PortsStore.vala \
 		UI/PortsView.vala

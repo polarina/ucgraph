@@ -16,7 +16,8 @@ namespace uCgraph.UI
 			GLib.Type[] types = {
 				typeof (bool),
 				typeof (string),
-				typeof (bool)
+				typeof (bool),
+				typeof (Pin)
 			};
 
 			this.set_column_types (types);
@@ -36,6 +37,7 @@ namespace uCgraph.UI
 						0, true,
 						1, pin.name,
 						2, false,
+						3, pin,
 						-1);
 				}
 			}

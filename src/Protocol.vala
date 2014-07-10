@@ -173,7 +173,7 @@ namespace uCgraph
 							{
 								uint8 capabilities = yield this.input.read_uint8 ();
 
-								pins.add (new Pin (pin_name, (uint8) pin, capabilities));
+								pins.add (new Pin (pin_name, (uint8) i, (uint8) pin, capabilities));
 							}
 						}
 
