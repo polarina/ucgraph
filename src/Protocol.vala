@@ -96,7 +96,6 @@ namespace uCgraph
 		}
 
 		public void do_ping (uint32 payload)
-			throws IOError
 		{
 			this.send_buffer.push_tail (new Bytes ({
 				0x00,
@@ -104,6 +103,40 @@ namespace uCgraph
 				(uint8) (payload >> 16),
 				(uint8) (payload >> 8),
 				(uint8) payload
+			}));
+
+			if ( ! this.sending)
+			{
+				this.sending = true;
+				this.send_work.begin ((obj, res) => {
+					this.sending = false;
+				});
+			}
+		}
+
+		public void do_set_port_mode (uint8 port, uint8 mode)
+		{
+			this.send_buffer.push_tail (new Bytes ({
+				0x04,
+				port,
+				mode
+			}));
+
+			if ( ! this.sending)
+			{
+				this.sending = true;
+				this.send_work.begin ((obj, res) => {
+					this.sending = false;
+				});
+			}
+		}
+
+		public void do_set_port_state (uint8 port, uint8 state)
+		{
+			this.send_buffer.push_tail (new Bytes ({
+				0x05,
+				port,
+				state
 			}));
 
 			if ( ! this.sending)

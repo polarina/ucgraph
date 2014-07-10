@@ -23,6 +23,8 @@ enum uc_protocol_type
 	PROTOCOL_TYPE_MONITOR_PORT = 0x02,
 	PROTOCOL_TYPE_NEGLECT_PORT = 0x03,
 	PROTOCOL_TYPE_PING = 0x00,
+	PROTOCOL_TYPE_SET_PORT_MODE = 0x04,
+	PROTOCOL_TYPE_SET_PORT_STATE = 0x05,
 
 	PROTOCOL_TYPE_NONE = 0xff,
 };
@@ -40,6 +42,12 @@ static union
 		uint32_t payload;
 		uint8_t pos;
 	} ping;
+
+	struct
+	{
+		uint8_t port;
+		bool has_port;
+	} port;
 } state;
 
 static bool
@@ -57,6 +65,44 @@ uc_protocol_step_ping (uint8_t byte)
 
 		return true;
 	}
+
+	return false;
+}
+
+static bool
+uc_protocol_step_set_port_mode (uint8_t byte)
+{
+	if (state.port.has_port)
+	{
+		uc_protocol_on_set_port_mode (state.port.port, byte);
+
+		state.port.port = 0;
+		state.port.has_port = false;
+
+		return true;
+	}
+
+	state.port.port = byte;
+	state.port.has_port = true;
+
+	return false;
+}
+
+static bool
+uc_protocol_step_set_port_state (uint8_t byte)
+{
+	if (state.port.has_port)
+	{
+		uc_protocol_on_set_port_state (state.port.port, byte);
+
+		state.port.port = 0;
+		state.port.has_port = false;
+
+		return true;
+	}
+
+	state.port.port = byte;
+	state.port.has_port = true;
 
 	return false;
 }
@@ -89,6 +135,12 @@ uc_protocol_step (uint8_t byte)
 			break;
 		case PROTOCOL_TYPE_PING:
 			done = uc_protocol_step_ping (byte);
+			break;
+		case PROTOCOL_TYPE_SET_PORT_MODE:
+			done = uc_protocol_step_set_port_mode (byte);
+			break;
+		case PROTOCOL_TYPE_SET_PORT_STATE:
+			done = uc_protocol_step_set_port_state (byte);
 			break;
 		default:
 			type = PROTOCOL_TYPE_NONE;

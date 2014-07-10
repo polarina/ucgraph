@@ -40,6 +40,12 @@ void
 uc_protocol_on_ping (uint32_t payload);
 
 void
+uc_protocol_on_set_port_mode (uint8_t port, uint8_t mode);
+
+void
+uc_protocol_on_set_port_state (uint8_t port, uint8_t state);
+
+void
 uc_protocol_tx_enable ();
 
 void

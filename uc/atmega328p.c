@@ -109,6 +109,44 @@ uc_protocol_on_ping (uint32_t payload)
 }
 
 void
+uc_protocol_on_set_port_mode (uint8_t port, uint8_t mode)
+{
+	switch (port)
+	{
+		case 0:
+			DDRB = mode;
+			break;
+		case 1:
+			DDRC = mode;
+			break;
+		case 2:
+			DDRD = mode;
+			break;
+		default:
+			break;
+	}
+}
+
+void
+uc_protocol_on_set_port_state (uint8_t port, uint8_t state)
+{
+	switch (port)
+	{
+		case 0:
+			PORTB = state;
+			break;
+		case 1:
+			PORTC = state;
+			break;
+		case 2:
+			PORTD = state;
+			break;
+		default:
+			break;
+	}
+}
+
+void
 uc_protocol_tx_enable ()
 {
 	/* enable data register empty interrupt */
