@@ -163,10 +163,6 @@ uc_protocol_tx_disable ()
 int
 main ()
 {
-	PORTB = 0x01;
-	DDRB = 0x20;
-	DDRD = 0x02;
-
 	/* set baud rate */
 	UBRR0 = UBRR_VALUE;
 
